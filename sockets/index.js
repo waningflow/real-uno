@@ -1,6 +1,6 @@
 const { genId } = require('../utils/_');
 const { addSocket, getSocket } = require('./socket');
-const { joinRoom, findRoom } = require('./room');
+const { joinRoom, findRoom, getRoomData } = require('./room');
 
 const init = (io) => {
   io.on('connection', (socket) => {
@@ -11,9 +11,10 @@ const init = (io) => {
         return;
       }
       socket.join(roomId);
-      socket.emit('create_room_result', { code: 0, roomId });
       addSocket(socket, { nickName, roomId });
       joinRoom(socket, roomId);
+      const roomData = getRoomData(roomId);
+      socket.emit('create_room_result', { code: 0, roomId, roomData });
       console.log('create room:', roomId, 'nickName:', nickName);
     });
     socket.on('join_room', ({ roomId, nickName }) => {
@@ -22,9 +23,11 @@ const init = (io) => {
         return;
       }
       socket.join(roomId);
-      socket.emit('join_room_result', { code: 0, roomId });
       addSocket(socket, { nickName, roomId });
       joinRoom(socket, roomId);
+      const roomData = getRoomData(roomId);
+      socket.emit('join_room_result', { code: 0, roomId, roomData });
+      socket.to(roomId).emit('update_room', { code: 0, roomData });
       console.log('join room:', roomId, 'nickName:', nickName);
     });
     socket.on('message', (data) => {

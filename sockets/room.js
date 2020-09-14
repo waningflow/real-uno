@@ -1,3 +1,5 @@
+const { getSocket } = require('./socket');
+
 const roomMap = {};
 
 const joinRoom = (socket, roomId) => {
@@ -16,7 +18,18 @@ const findRoom = (roomId) => {
   return roomMap[roomId];
 };
 
+const getRoomData = (roomId) => {
+  return roomMap[roomId].sockets.map((s) => {
+    let socket = { ...getSocket(s) };
+    if (socket.id === roomMap[roomId].owner.id) {
+      socket.isOwner = true;
+    }
+    return socket;
+  });
+};
+
 module.exports = {
   joinRoom,
   findRoom,
+  getRoomData,
 };
