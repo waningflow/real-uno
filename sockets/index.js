@@ -1,6 +1,8 @@
 const { genId } = require('../utils/_');
 const { addSocket, getSocket } = require('./socket');
-const { joinRoom, findRoom, getRoomData } = require('./room');
+const { joinRoom, findRoom, getRoomData, removeSocketInRoom } = require('./room');
+const socket = require('./socket');
+const room = require('./room');
 
 const init = (io) => {
   io.on('connection', (socket) => {
@@ -31,13 +33,26 @@ const init = (io) => {
       console.log('join room:', roomId, 'nickName:', userInfo.nickName);
     });
     socket.on('message', (data) => {
-      const { userInfo, roomId } = getSocket(socket);
+      const socketData = getSocket(socket);
+      if (!socketData) return;
+      const { userInfo, roomId } = socketData;
       const { msg } = data;
       const msgId = genId(10);
       io.in(roomId).send({ userInfo, roomId, msg, msgId });
       console.log('message come', 'roomId:', roomId, 'nickName:', userInfo.nickName, 'msg:', msg);
     });
+    socket.on('disconnect', () => {
+      const socketData = getSocket(socket);
+      if (!socketData) return;
+      const { userInfo, roomId } = socketData;
+      removeSocketInRoom(roomId, socket);
+      const roomData = getRoomData(roomId);
+      socket.to(roomId).emit('update_room', { code: 0, roomData });
+      console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
+    });
   });
+  // io.
+  // io.on('connect_error', (socket))
 };
 
 module.exports = {

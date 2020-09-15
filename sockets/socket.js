@@ -1,5 +1,3 @@
-const sockets = require('.');
-
 const socketMap = new WeakMap();
 
 const addSocket = (socket, data) => {
@@ -10,7 +8,12 @@ const getSocket = (socket) => {
   return socketMap.get(socket);
 };
 
+const deleteSocket = (socket) => {
+  socketMap.delete(socket);
+};
+
 module.exports = {
   addSocket,
   getSocket,
+  deleteSocket
 };

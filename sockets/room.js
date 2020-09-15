@@ -28,8 +28,23 @@ const getRoomData = (roomId) => {
   });
 };
 
+const removeSocketInRoom = (roomId, socket) => {
+  const roomData = roomMap[roomId];
+  if (!roomData) return;
+  const socketIndex = roomData.sockets.findIndex((v) => v.id === socket.id);
+  if (socketIndex !== -1) {
+    roomData.sockets.splice(socketIndex, 1);
+  }
+  if (roomData.sockets.length) {
+    if (roomData.owner.id === socket.id) {
+      roomData.owner = roomData.sockets[0];
+    }
+  }
+};
+
 module.exports = {
   joinRoom,
   findRoom,
   getRoomData,
+  removeSocketInRoom
 };
