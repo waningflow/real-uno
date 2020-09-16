@@ -6,6 +6,7 @@ const room = require('./room');
 
 const init = (io) => {
   io.on('connection', (socket) => {
+    console.log('connection', socket.id);
     socket.on('create_room', ({ userInfo }) => {
       const roomId = genId(5);
       if (findRoom(roomId)) {
@@ -42,6 +43,7 @@ const init = (io) => {
       console.log('message come', 'roomId:', roomId, 'nickName:', userInfo.nickName, 'msg:', msg);
     });
     socket.on('disconnect', () => {
+      console.log('disconnect');
       const socketData = getSocket(socket);
       if (!socketData) return;
       const { userInfo, roomId } = socketData;
@@ -49,6 +51,24 @@ const init = (io) => {
       const roomData = getRoomData(roomId);
       socket.to(roomId).emit('update_room', { code: 0, roomData });
       console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
+    });
+    socket.on('connect_error', () => {
+      console.log('connect_error');
+    });
+    socket.on('connect_timeout', () => {
+      console.log('connect_timeout');
+    });
+    socket.on('reconnect_attempt', () => {
+      console.log('reconnect_attempt');
+    });
+    socket.on('reconnect_error', () => {
+      console.log('reconnect_error');
+    });
+    socket.on('reconnect_failed', () => {
+      console.log('reconnect_failed');
+    });
+    socket.on('reconnect', () => {
+      console.log('reconnect');
     });
   });
   // io.
