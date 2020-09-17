@@ -29,8 +29,10 @@ class Rooms {
       if (roomData.owner.id === userInfo.id) {
         roomData.owner = roomData.users[0];
       }
+      this.roomMap[roomId] = roomData;
+    } else {
+      this.roomData[roomId] = null;
     }
-    this.roomMap[roomId] = roomData;
   }
 
   findRoom(roomId) {

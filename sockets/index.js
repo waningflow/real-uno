@@ -14,7 +14,7 @@ const autoJoin = (socket) => {
   try {
     const { userInfo: userInfoRaw } = socket.handshake.query;
     const userInfo = JSON.parse(userInfoRaw);
-    console.log(userInfo);
+    // console.log(userInfo);
     Users.addSocket(userInfo, socket);
     const lastRoomId = Users.findUser(userInfo).lastRoomId;
     if (lastRoomId) {
@@ -22,6 +22,8 @@ const autoJoin = (socket) => {
       const roomData = Rooms.getRoomData(lastRoomId);
       socket.emit('auto_join', { roomId: lastRoomId, roomData });
       console.log('auto join room', 'roomId:', lastRoomId);
+    } else {
+      socket.emit('reset');
     }
   } catch (e) {
     console.log(e);
@@ -39,8 +41,7 @@ const init = (io) => {
         return;
       }
       joinRoom(socket, roomId, userInfo);
-      const roomData = Rooms.getRoomData(roomId);
-      socket.emit('create_room_result', { code: 0, roomId, roomData });
+      socket.emit('create_room_result', { code: 0, roomId, roomData: Rooms.getRoomData(roomId) });
       console.log('create room:', roomId, 'nickName:', userInfo.nickName);
     });
     socket.on('join_room', ({ roomId, userInfo }) => {
@@ -67,15 +68,17 @@ const init = (io) => {
       if (!socket._data) return;
       const { userInfo, roomId } = socket._data;
       const remainSockets = Users.removeSocket(userInfo, socket);
-      console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
+      console.log('remove socket:', 'nickName:', userInfo.nickName);
       // 10s内没有重连则不能自动连接
       if (remainSockets === 0) {
         setTimeout(() => {
-          Users.clearLastRoomId(userInfo);
-          Rooms.leaveRoom(roomId, userInfo);
-          Users.leaveRoom(roomId, userInfo);
-          const roomData = Rooms.getRoomData(roomId);
-          socket.to(roomId).emit('update_room', { code: 0, roomData });
+          if (Users.getSocketNum(userInfo) === 0) {
+            // Users.clearLastRoomId(userInfo);
+            Rooms.leaveRoom(roomId, userInfo);
+            Users.leaveRoom(roomId, userInfo);
+            socket.to(roomId).emit('update_room', { code: 0, roomData: Rooms.getRoomData(roomId) });
+            console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
+          }
         }, 10000);
       }
     });

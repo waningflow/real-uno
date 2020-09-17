@@ -29,27 +29,33 @@ class Users {
   }
 
   leaveRoom(roomId, userInfo) {
-    let userData = this.users[userInfo.userId];
-    if (!userData) return;
-    // userData.lastRoomId = userData.roomId;
-    userData.roomId = null;
-    this.users[userInfo.userId] = userData;
+    this.users[userInfo.userId] = null;
+    // let userData = this.users[userInfo.userId];
+    // if (!userData) return;
+    // // userData.lastRoomId = userData.roomId;
+    // userData.roomId = null;
+    // this.users[userInfo.userId] = userData;
   }
 
   findUser(userInfo) {
     return this.users[userInfo.userId];
   }
 
-  clearLastRoomId(userInfo) {
+  getSocketNum(userInfo) {
     let userData = this.users[userInfo.userId];
-    console.log('clear lastRoomId', userData);
-    if (!userData || userData.sockets.length > 0) {
-      console.log('clear fail for active socket');
-      return;
-    }
-    userData.lastRoomId = null;
-    this.users[userInfo.userId] = userData;
+    return userData ? userData.sockets.length : 0;
   }
+
+  // clearLastRoomId(userInfo) {
+  //   let userData = this.users[userInfo.userId];
+  //   console.log('clear lastRoomId', userData);
+  //   if (!userData || userData.sockets.length > 0) {
+  //     console.log('clear fail for active socket');
+  //     return;
+  //   }
+  //   userData.lastRoomId = null;
+  //   this.users[userInfo.userId] = userData;
+  // }
 }
 
 module.exports = new Users();
