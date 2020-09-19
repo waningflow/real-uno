@@ -31,7 +31,7 @@ class Rooms {
       }
       this.roomMap[roomId] = roomData;
     } else {
-      this.roomData[roomId] = null;
+      this.roomMap[roomId] = null;
     }
   }
 
