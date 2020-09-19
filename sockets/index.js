@@ -16,6 +16,8 @@ const autoJoin = (socket) => {
     const userInfo = JSON.parse(userInfoRaw);
     // console.log(userInfo);
     Users.addSocket(userInfo, socket);
+    socket._data = socket._data || {};
+    socket._data.userInfo = userInfo;
     const lastRoomId = Users.findUser(userInfo).lastRoomId;
     if (lastRoomId) {
       joinRoom(socket, lastRoomId, userInfo);
@@ -65,13 +67,21 @@ const init = (io) => {
     });
     socket.on('disconnect', (type) => {
       console.log('disconnect', type);
-      if (!socket._data) return;
-      const { userInfo, roomId } = socket._data;
+      // if (!socket._data) return;
+      const { userInfo, roomId } = socket._data || {};
+      if (!userInfo) return;
       const remainSockets = Users.removeSocket(userInfo, socket);
-      console.log('remove socket:', 'nickName:', userInfo.nickName);
+      console.log(
+        'remove socket:',
+        'nickName:',
+        userInfo.nickName,
+        'remainSockets:',
+        remainSockets
+      );
       // 10s内没有重连则不能自动连接
-      if (remainSockets === 0) {
+      if (remainSockets === 0 || !roomId) {
         const forceDisconnect = type === 'client namespace disconnect';
+        console.log('forceDisconnect', forceDisconnect);
         setTimeout(
           () => {
             if (Users.getSocketNum(userInfo) === 0) {
