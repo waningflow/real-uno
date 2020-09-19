@@ -53,4 +53,4 @@ for (let j = 4; j < 8; j++) {
 }
 // console.log(cards);
 // console.log(Object.keys(cards).length);
-module.exports = { cards };
+module.exports = { cards, cardIds: Object.keys(cards) };

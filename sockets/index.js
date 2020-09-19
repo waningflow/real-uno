@@ -96,6 +96,12 @@ const init = (io) => {
         );
       }
     });
+    socket.on('start_game', () => {
+      if (!socket._data) return;
+      const { userInfo, roomId } = socket._data;
+      io.in(roomId).emit('game_started', { gameData: {} });
+      console.log('game_started', 'roomId:', roomId, 'nickName:', userInfo.nickName);
+    });
     socket.on('connect_error', () => {
       console.log('connect_error');
     });
