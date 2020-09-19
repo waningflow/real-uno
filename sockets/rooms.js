@@ -21,12 +21,12 @@ class Rooms {
   leaveRoom(roomId, userInfo) {
     const roomData = this.roomMap[roomId];
     if (!roomData) return;
-    const userIndex = roomData.users.findIndex((v) => v.id === userInfo.id);
+    const userIndex = roomData.users.findIndex((v) => v.userId === userInfo.userId);
     if (userIndex !== -1) {
       roomData.users.splice(userIndex, 1);
     }
     if (roomData.users.length) {
-      if (roomData.owner.id === userInfo.id) {
+      if (roomData.owner.userId === userInfo.userId) {
         roomData.owner = roomData.users[0];
       }
       this.roomMap[roomId] = roomData;

@@ -1,5 +1,4 @@
 const { genId } = require('../utils/_');
-// const Sockets = require('./socket');
 const Users = require('./users');
 const Rooms = require('./rooms');
 

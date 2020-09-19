@@ -18,7 +18,7 @@ class Users {
       userData.sockets.splice(socketIndex, 1);
     }
     this.users[userInfo.userId] = userData;
-    console.log(userData);
+    // console.log(userData);
     return userData.sockets.length;
   }
 
