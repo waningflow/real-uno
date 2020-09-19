@@ -63,23 +63,28 @@ const init = (io) => {
       io.in(roomId).send({ userInfo, roomId, msg, msgId });
       console.log('message come', 'roomId:', roomId, 'nickName:', userInfo.nickName, 'msg:', msg);
     });
-    socket.on('disconnect', () => {
-      console.log('disconnect');
+    socket.on('disconnect', (type) => {
+      console.log('disconnect', type);
       if (!socket._data) return;
       const { userInfo, roomId } = socket._data;
       const remainSockets = Users.removeSocket(userInfo, socket);
       console.log('remove socket:', 'nickName:', userInfo.nickName);
       // 10s内没有重连则不能自动连接
       if (remainSockets === 0) {
-        setTimeout(() => {
-          if (Users.getSocketNum(userInfo) === 0) {
-            // Users.clearLastRoomId(userInfo);
-            Rooms.leaveRoom(roomId, userInfo);
-            Users.leaveRoom(roomId, userInfo);
-            socket.to(roomId).emit('update_room', { code: 0, roomData: Rooms.getRoomData(roomId) });
-            console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
-          }
-        }, 10000);
+        const forceDisconnect = type === 'client namespace disconnect';
+        setTimeout(
+          () => {
+            if (Users.getSocketNum(userInfo) === 0) {
+              Rooms.leaveRoom(roomId, userInfo);
+              Users.leaveRoom(roomId, userInfo);
+              socket
+                .to(roomId)
+                .emit('update_room', { code: 0, roomData: Rooms.getRoomData(roomId) });
+              console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
+            }
+          },
+          forceDisconnect ? 0 : 10000
+        );
       }
     });
     socket.on('connect_error', () => {
