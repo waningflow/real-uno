@@ -1,6 +1,7 @@
 const { genId } = require('../utils/_');
 const Users = require('./users');
 const Rooms = require('./rooms');
+const Game = require('./game');
 
 const joinRoom = (socket, roomId, userInfo) => {
   socket.join(roomId);
@@ -101,6 +102,8 @@ const init = (io) => {
       const { userInfo, roomId } = socket._data;
       io.in(roomId).emit('game_started', { gameData: {} });
       console.log('game_started', 'roomId:', roomId, 'nickName:', userInfo.nickName);
+      const game = new Game();
+      game.start();
     });
     socket.on('connect_error', () => {
       console.log('connect_error');
