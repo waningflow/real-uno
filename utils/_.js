@@ -7,6 +7,15 @@ const genId = (n) => {
   return result;
 };
 
+const randomArr = (arr) => {
+  let result = arr.slice();
+  result.sort(function () {
+    return Math.random() - 0.5;
+  });
+  return result;
+};
+
 module.exports = {
   genId,
+  randomArr,
 };

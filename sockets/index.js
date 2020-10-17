@@ -102,7 +102,8 @@ const init = (io) => {
       const { userInfo, roomId } = socket._data;
       io.in(roomId).emit('game_started', { gameData: {} });
       console.log('game_started', 'roomId:', roomId, 'nickName:', userInfo.nickName);
-      const game = new Game();
+      const roomData = Rooms.getRoomData(roomId);
+      const game = new Game({ io, roomId, roomData });
       game.start();
     });
     socket.on('connect_error', () => {
