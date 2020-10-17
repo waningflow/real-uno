@@ -22,7 +22,11 @@ const autoJoin = (socket) => {
     if (lastRoomId) {
       joinRoom(socket, lastRoomId, userInfo);
       const roomData = Rooms.getRoomData(lastRoomId);
-      socket.emit('auto_join', { roomId: lastRoomId, roomData });
+      socket.emit('auto_join', {
+        roomId: lastRoomId,
+        roomData: { owner: roomData.owner, users: roomData.users },
+        gameData: roomData.game ? {} : null,
+      });
       console.log('auto join room', 'roomId:', lastRoomId);
     } else {
       socket.emit('reset');
@@ -97,6 +101,7 @@ const init = (io) => {
         );
       }
     });
+    // game相关事件
     socket.on('start_game', () => {
       if (!socket._data) return;
       const { userInfo, roomId } = socket._data;
@@ -104,8 +109,22 @@ const init = (io) => {
       console.log('game_started', 'roomId:', roomId, 'nickName:', userInfo.nickName);
       const roomData = Rooms.getRoomData(roomId);
       const game = new Game({ io, roomId, roomData });
-      game.start();
+      roomData.game = game;
+      // game.start();
     });
+    socket.on('player_ready', () => {
+      if (!socket._data) return;
+      const { userInfo, roomId } = socket._data;
+      console.log('player_ready', 'roomId:', roomId, 'nickName:', userInfo.nickName);
+      const roomData = Rooms.getRoomData(roomId);
+      const game = roomData.game;
+      game.playerReady(userInfo);
+      console.log(game.isAllPlayerReady());
+      if (game.isAllPlayerReady() && !game.started) {
+        game.start();
+      }
+    });
+    // 连接相关事件
     socket.on('connect_error', () => {
       console.log('connect_error');
     });

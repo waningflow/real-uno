@@ -1,5 +1,4 @@
-// deal card
-
+const Users = require('./users');
 const { cards, cardIds } = require('./cards');
 const { randomArr } = require('../utils/_');
 
@@ -15,6 +14,7 @@ class Game {
   }
 
   init({ io, roomId, roomData }) {
+    this.started = false;
     this.io = io;
     this.roomId = roomId;
     this.players = roomData.users; // 游戏玩家
@@ -29,6 +29,20 @@ class Game {
     };
   }
 
+  playerReady(userInfo) {
+    let player = this.players.find((v) => v.userId === userInfo.userId);
+    if (player) {
+      if (player.isReady) {
+      } else {
+        player.isReady = true;
+      }
+    }
+  }
+
+  isAllPlayerReady() {
+    return this.players.every((v) => v.isReady);
+  }
+
   forfrom(cb) {
     let startIndex = this.bankerIndex;
     for (let j = 0; j < this.playersCount; j++) {
@@ -37,15 +51,24 @@ class Game {
     }
   }
 
+  sendToUser(player, eventName, eventData) {
+    const userInfo = Users.findUser(player);
+    userInfo.sockets.forEach((socket) => {
+      this.io.to(socket.id).emit(eventName, eventData);
+    });
+  }
+
   start() {
+    this.started = true;
     const firstCount = 7;
     this.forfrom((player, index) => {
       player.currentCards = this.cardIds.splice(0, firstCount);
     });
     for (let i = 0; i < this.playersCount; i++) {
+      const toPlayer = this.players[i];
       let step = {
         from: 'god',
-        to: this.players[i],
+        to: toPlayer.userId,
         actions: [],
       };
       this.forfrom((player, index) => {
@@ -55,11 +78,12 @@ class Game {
           value: {
             count: firstCount,
             ids: isSelf ? player.currentCards : [],
-            to: this.players[index],
+            to: this.players[index].userId,
           },
         });
       });
       this.steps.push(step);
+      this.sendToUser(toPlayer, 'game_change', step);
     }
     console.log(this.steps);
   }
