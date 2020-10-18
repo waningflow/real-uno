@@ -29,6 +29,16 @@ class Game {
     };
   }
 
+  getGameData() {
+    return {
+      roomId: this.roomId,
+      players: this.players,
+      playersCount: this.playersCount,
+      bankerIndex: this.bankerIndex,
+      banker: this.banker,
+    };
+  }
+
   playerReady(userInfo) {
     let player = this.players.find((v) => v.userId === userInfo.userId);
     if (player) {

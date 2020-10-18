@@ -25,7 +25,7 @@ const autoJoin = (socket) => {
       socket.emit('auto_join', {
         roomId: lastRoomId,
         roomData: { owner: roomData.owner, users: roomData.users },
-        gameData: roomData.game ? {} : null,
+        gameData: roomData.game ? roomData.game.getGameData() : null,
       });
       console.log('auto join room', 'roomId:', lastRoomId);
     } else {
@@ -105,12 +105,11 @@ const init = (io) => {
     socket.on('start_game', () => {
       if (!socket._data) return;
       const { userInfo, roomId } = socket._data;
-      io.in(roomId).emit('game_started', { gameData: {} });
-      console.log('game_started', 'roomId:', roomId, 'nickName:', userInfo.nickName);
       const roomData = Rooms.getRoomData(roomId);
       const game = new Game({ io, roomId, roomData });
       roomData.game = game;
-      // game.start();
+      io.in(roomId).emit('game_started', { gameData: game.getGameData() });
+      console.log('game_started', 'roomId:', roomId, 'nickName:', userInfo.nickName);
     });
     socket.on('player_ready', () => {
       if (!socket._data) return;
