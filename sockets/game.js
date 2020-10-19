@@ -41,7 +41,8 @@ class Game {
       playersCount: this.playersCount,
       bankerIndex: this.bankerIndex,
       banker: this.banker,
-      libraryCount: this.cards.length,
+      cardsLibrary: this.cardIds,
+      libraryCount: this.cardIds.length,
     };
   }
 
