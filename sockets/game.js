@@ -32,10 +32,16 @@ class Game {
   getGameData() {
     return {
       roomId: this.roomId,
-      players: this.players,
+      players: this.players.map((v) => ({
+        userId: v.userId,
+        nickName: v.nickName,
+        avatarUrl: v.avatarUrl,
+        cardsCount: (v.cards || []).length,
+      })),
       playersCount: this.playersCount,
       bankerIndex: this.bankerIndex,
       banker: this.banker,
+      libraryCount: this.cards.length,
     };
   }
 
