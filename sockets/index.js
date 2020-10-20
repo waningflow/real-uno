@@ -55,6 +55,10 @@ const init = (io) => {
         socket.emit('join_room_result', { code: 1, message: 'not fount' });
         return;
       }
+      if (Rooms.getRoomData(roomId).game) {
+        socket.emit('join_room_result', { code: 1, message: 'room has already started a game' });
+        return;
+      }
       joinRoom(socket, roomId, userInfo);
       const roomData = Rooms.getRoomData(roomId);
       socket.emit('join_room_result', { code: 0, roomId, roomData });
