@@ -98,12 +98,11 @@ const init = (io) => {
                 Rooms.leaveRoom(roomId, userInfo);
                 Users.leaveRoom(roomId, userInfo);
                 const roomData = Rooms.getRoomData(roomId);
-                socket
-                  .to(roomId)
-                  .emit('update_room', {
-                    code: 0,
-                    roomData: { owner: roomData.owner, users: roomData.users },
-                  });
+                if (!roomData) return;
+                socket.to(roomId).emit('update_room', {
+                  code: 0,
+                  roomData: { owner: roomData.owner, users: roomData.users },
+                });
                 console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
               } catch (e) {
                 console.log('disconnect leave room err', e);
