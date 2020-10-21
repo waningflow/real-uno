@@ -37,7 +37,7 @@ class Game {
         nickName: v.nickName,
         avatarUrl: v.avatarUrl,
         cardsCount: (v.currentCards || []).length,
-        currentCards: v.currentCards,
+        currentCards: v.currentCards || [],
       })),
       playersCount: this.playersCount,
       bankerIndex: this.bankerIndex,
