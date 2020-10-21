@@ -20,6 +20,7 @@ const autoJoin = (socket) => {
     socket._data.userInfo = userInfo;
     const lastRoomId = Users.findUser(userInfo).lastRoomId;
     if (lastRoomId) {
+      console.log('will auto join');
       joinRoom(socket, lastRoomId, userInfo);
       const roomData = Rooms.getRoomData(lastRoomId);
       socket.emit('auto_join', {
@@ -93,12 +94,20 @@ const init = (io) => {
         setTimeout(
           () => {
             if (Users.getSocketNum(userInfo) === 0) {
-              Rooms.leaveRoom(roomId, userInfo);
-              Users.leaveRoom(roomId, userInfo);
-              socket
-                .to(roomId)
-                .emit('update_room', { code: 0, roomData: Rooms.getRoomData(roomId) });
-              console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
+              try {
+                Rooms.leaveRoom(roomId, userInfo);
+                Users.leaveRoom(roomId, userInfo);
+                const roomData = Rooms.getRoomData(roomId);
+                socket
+                  .to(roomId)
+                  .emit('update_room', {
+                    code: 0,
+                    roomData: { owner: roomData.owner, users: roomData.users },
+                  });
+                console.log('leave room:', roomId, 'nickName:', userInfo.nickName);
+              } catch (e) {
+                console.log('disconnect leave room err', e);
+              }
             }
           },
           forceDisconnect ? 0 : 10000
